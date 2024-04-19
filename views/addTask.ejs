@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Add new Task</h1>
+
+    <form action="/tasks" method="POST">
+        <label for="inputNewTask">
+            New Task
+            <input name="inputNewTask" type="text" value="<%= locals.inputNewTask %>">          
+        </label>
+        <label for="taskCompleted">
+            Done
+            <select name="taskCompleted" id="taskCompleted">
+                <option value="false">Not Done</option>
+                <option value="true">Done</option>
+            </select>
+        </label>
+        <button type="submit">Submit new Task</button>
+    </form>
+    
+</body>
+</html>

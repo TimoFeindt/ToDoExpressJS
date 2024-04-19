@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/scss/base.css" type="text/css">
+    <title>Document</title>
+</head>
+<body class="main">
+    <h1 class="h1">To-Do List</h1>
+
+    <div class="newTask">
+        <form action="/tasks" method="POST">
+            <label for="inputNewTask" class="invis">New Task</label>
+            <input name="inputNewTask" placeholder="Enter new Task" type="text" value="<%= locals.inputNewTask %>" class="newTask__input">
+            <label for="taskCompleted" class="invis">Task done</label>
+            <select name="taskCompleted" id="taskCompleted" class="newTask__dropdown">
+                <option value="false" class="newTask__options">Not Done</option>
+                <option value="true" class="newTask__options">Done</option>
+            </select>
+            <button type="submit" class="newTask__button">Create new Task</button>
+        </form>
+    </div>
+    
+    <div class="openTask">
+        <% const resultArray = locals.result.rows %>
+        <% resultArray.forEach(element => {  %>
+            <div class="openTask__single">
+                <label for="checkboxTask" class="invis">Done</label>
+                <input id="checkboxTask" type="checkbox" <%= element.done ? 'checked' : '' %> data-task-id="<%= element.id %>" class="openTask__checkboxInput">
+                <span class="openTask__checkbox"></span>
+                <%= element.title %>
+                <button class="openTask__delete" data-task-id="<%= element.id %>"></button>
+            </div>
+        <% }); %>
+    </div>
+    
+    
+  
+    <!-- NO need for this anymore <a href="/tasks/getTask">Go to search for a task</a>
+    <br> -->
+    <!-- <a href="/tasks/addTask">Go to add a new task</a>  No need because I put the add Task part into the main task page -->
+</body>
+<script>
+    const deleteButtons = document.querySelectorAll('.openTask__delete');
+    const checkboxs = document.querySelectorAll('.openTask__checkboxInput');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const taskId = button.dataset.taskId;
+            button.parentElement.remove();
+            await deleteTask(taskId);
+            
+        });
+    });
+    
+    checkboxs.forEach(checkbox => {
+        const taskId = checkbox.dataset.taskId;
+        if(checkbox.checked) {
+            checkbox.parentElement.classList.add('openTask__completed')
+        }
+        checkbox.addEventListener('click', async() => {
+            if(checkbox.checked) {
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('openTask__completed')
+                await taskStatus(taskId, checkbox.checked);
+            } else {
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('openTask__completed')
+                await taskStatus(taskId, checkbox.checked);
+            }
+            
+            
+        })
+    })
+
+
+
+    const taskStatus = async (taskId, completed) => {
+        try {
+            const response = await fetch(`/tasks/${taskId}/${completed}`, {
+                method: 'PUT',
+                body: JSON.stringify({ completed }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                // Task erfolgreich gelöscht, Aktualisierung der Anzeige oder Weiterleitung
+            } else {
+                console.error('Fehler beim Löschen des Tasks');
+            }
+        } catch (error) {
+            console.error('Fehler beim Löschen des Tasks', error);
+        }
+    }
+
+    const deleteTask = async (taskId) => {
+        try {
+            const response = await fetch(`/tasks/${taskId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                // Task erfolgreich gelöscht, Aktualisierung der Anzeige oder Weiterleitung
+            } else {
+                console.error('Fehler beim Löschen des Tasks');
+            }
+        } catch (error) {
+            console.error('Fehler beim Löschen des Tasks', error);
+        }
+    }
+
+</script>
+</html>
